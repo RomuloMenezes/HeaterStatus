@@ -20,11 +20,16 @@ def main(csv_file_name, matrix_size_param):
         aux_df = df_raw_data.loc[df_raw_data['locationId'] == location]
         aux_df.index = range(aux_df.shape[0])
         curr_mode = aux_df.deltaInSecs.mode()
-        for outerIndex in range(matrix_size - 1, aux_df.shape[0]):
+        outer_indices = iter(range(matrix_size - 1, aux_df.shape[0]))
+        for outerIndex in outer_indices:
             for innerIndex in range(matrix_size - 1):  # The final element will be inserted after the loop
                 nb_of_points_to_insert = int(aux_df.deltaInSecs[outerIndex - innerIndex] / curr_mode) - 1
                 if nb_of_points_to_insert > 0:
                     curr_window.reset_queue()
+                    # Skipping the rows whose windows cannot be created due to missing data
+                    for j in range(matrix_size - innerIndex - 1):
+                        next(outer_indices, None)
+                    break
                 else:
                     curr_window.enqueue(aux_df.mains[outerIndex-innerIndex])
             if not curr_window.is_empty:  # Enqueueing the 5th value for mains
