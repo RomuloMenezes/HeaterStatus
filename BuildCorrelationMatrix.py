@@ -46,7 +46,8 @@ def main(csv_file_name, matrix_size_param):
                 aux_lst.append(aux_df.mains[outerIndex - (matrix_size - 1)])
                 lst_output.append(aux_lst)
         if len(lst_output) > 0:
-            with open("C:\Simptek\Assignment01_20170519\CorrelationMatrix_" + location + ".csv", 'wb') as my_file:
+            with open("C:\Simptek\Assignment01_20170519\CorrelationMatrix_" + location + "_w" + str(matrix_size) +
+                      ".csv", 'wb') as my_file:
                 wr = csv.writer(my_file)
                 wr.writerows(lst_output)
 
