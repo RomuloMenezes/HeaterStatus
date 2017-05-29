@@ -1,4 +1,5 @@
 from sklearn.linear_model import LogisticRegression
+import numpy as np
 
 
 class HeaterStatus:
@@ -10,7 +11,6 @@ class HeaterStatus:
 
     def fit(self, raw_data_file_name):
         import pandas as pd
-        import numpy as np
         from sklearn.model_selection import train_test_split
 
         df_raw_data = pd.read_csv(raw_data_file_name, parse_dates=['timestamp'])
@@ -26,9 +26,9 @@ class HeaterStatus:
             x[i, 1] = df_raw_data.mains[i]
         y = df_raw_data.status
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.15, stratify=x[:, 0])
-        logistic = LogisticRegression()
-        logistic.fit(x_train, y_train)
-        self.score_all_locations = logistic.score(x_test, y_test)
+        self.logistic = LogisticRegression()
+        self.logistic.fit(x_train, y_train)
+        self.score_all_locations = self.logistic.score(x_test, y_test)
 
         # Training one model for each location
         curr_logistic = LogisticRegression()
@@ -46,6 +46,7 @@ class HeaterStatus:
             return -1
         else:
             if self.score_all_locations > self.score_per_location[self.location_dict[location]]:
-                return self.logistic.predict(mains)
+                param = np.array([self.location_dict[location], mains])
+                return self.logistic.predict(param.reshape(1, -1))
             else:
                 return self.logistic_loc[self.location_dict[location]].predict(mains)
